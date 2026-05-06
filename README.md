@@ -18,7 +18,7 @@ Instead of presenting only a CV, this repository demonstrates how I would approa
 - prepare CI checks for review-ready development,
 - show business value through notebooks, SQL, and a Streamlit dashboard.
 
-For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For bronze processing details, see [Bronze Layer](docs/bronze-layer.md). For silver cleaning details, see [Silver Layer](docs/silver-layer.md). For business-ready tables, see [Gold Layer](docs/gold-layer.md). For SQL examples, see [SQL Insights](docs/sql-insights.md). For dashboard usage, see [Streamlit Dashboard](docs/dashboard.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
+For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For cloud mapping, see [Cloud Blueprint](docs/cloud-blueprint.md). For bronze processing details, see [Bronze Layer](docs/bronze-layer.md). For silver cleaning details, see [Silver Layer](docs/silver-layer.md). For business-ready tables, see [Gold Layer](docs/gold-layer.md). For exploratory analysis, see [Exploratory Analysis](docs/exploratory-analysis.md). For SQL examples, see [SQL Insights](docs/sql-insights.md). For dashboard usage, see [Streamlit Dashboard](docs/dashboard.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
 
 ## Business Scenario
 
@@ -157,6 +157,8 @@ Day 2 ingestion foundation is in progress:
 - bronze Parquet build from raw JSON sources,
 - silver cleaning with delay fields and deduplication,
 - gold business tables for SQL and dashboard use,
+- exploratory notebook with Pandas/NumPy data understanding,
 - SQL insight queries over gold tables,
-- Streamlit dashboard over gold tables.
+- Streamlit dashboard over gold tables,
+- Azure Data Factory and Databricks cloud blueprints.
 

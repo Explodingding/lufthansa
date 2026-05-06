@@ -1,0 +1,122 @@
+{
+  "name": "airline-digital-experience-data-platform",
+  "description": "Databricks job blueprint for running the airline digital experience bronze, silver, and gold Spark pipeline.",
+  "runtime": {
+    "databricks_runtime": "16.4 LTS",
+    "python": "3.12",
+    "spark": "3.5.2"
+  },
+  "job_clusters": [
+    {
+      "job_cluster_key": "airline_pipeline_cluster",
+      "new_cluster": {
+        "spark_version": "16.4.x-scala2.12",
+        "node_type_id": "Standard_DS3_v2",
+        "num_workers": 2,
+        "spark_conf": {
+          "spark.sql.session.timeZone": "UTC"
+        },
+        "custom_tags": {
+          "project": "airline-digital-experience-platform",
+          "environment": "{{environment}}"
+        }
+      }
+    }
+  ],
+  "parameters": [
+    {
+      "name": "environment",
+      "default": "dev"
+    },
+    {
+      "name": "raw_dir",
+      "default": "abfss://airline-data@storage-account.dfs.core.windows.net/raw"
+    },
+    {
+      "name": "bronze_dir",
+      "default": "abfss://airline-data@storage-account.dfs.core.windows.net/bronze"
+    },
+    {
+      "name": "silver_dir",
+      "default": "abfss://airline-data@storage-account.dfs.core.windows.net/silver"
+    },
+    {
+      "name": "gold_dir",
+      "default": "abfss://airline-data@storage-account.dfs.core.windows.net/gold"
+    }
+  ],
+  "tasks": [
+    {
+      "task_key": "build_bronze",
+      "description": "Create source-aligned bronze tables from validated raw files.",
+      "job_cluster_key": "airline_pipeline_cluster",
+      "python_wheel_task": {
+        "package_name": "airline_digital_experience_platform",
+        "entry_point": "airline-build-bronze",
+        "parameters": [
+          "--raw-dir",
+          "{{job.parameters.raw_dir}}",
+          "--output-dir",
+          "{{job.parameters.bronze_dir}}"
+        ]
+      },
+      "max_retries": 1,
+      "min_retry_interval_millis": 120000
+    },
+    {
+      "task_key": "build_silver",
+      "description": "Clean, deduplicate, and derive delay fields for silver tables.",
+      "depends_on": [
+        {
+          "task_key": "build_bronze"
+        }
+      ],
+      "job_cluster_key": "airline_pipeline_cluster",
+      "python_wheel_task": {
+        "package_name": "airline_digital_experience_platform",
+        "entry_point": "airline-build-silver",
+        "parameters": [
+          "--bronze-dir",
+          "{{job.parameters.bronze_dir}}",
+          "--output-dir",
+          "{{job.parameters.silver_dir}}"
+        ]
+      },
+      "max_retries": 1,
+      "min_retry_interval_millis": 120000
+    },
+    {
+      "task_key": "build_gold",
+      "description": "Create dashboard-ready gold business tables.",
+      "depends_on": [
+        {
+          "task_key": "build_silver"
+        }
+      ],
+      "job_cluster_key": "airline_pipeline_cluster",
+      "python_wheel_task": {
+        "package_name": "airline_digital_experience_platform",
+        "entry_point": "airline-build-gold",
+        "parameters": [
+          "--silver-dir",
+          "{{job.parameters.silver_dir}}",
+          "--output-dir",
+          "{{job.parameters.gold_dir}}"
+        ]
+      },
+      "max_retries": 1,
+      "min_retry_interval_millis": 120000
+    }
+  ],
+  "observability": {
+    "expected_outputs": [
+      "{{job.parameters.bronze_dir}}/_build_summary/summary.json",
+      "{{job.parameters.silver_dir}}/_build_summary/summary.json",
+      "{{job.parameters.gold_dir}}/_build_summary/summary.json"
+    ],
+    "alerting": {
+      "on_failure": "notify data engineering channel",
+      "on_duration_warning": "review source API availability and Spark task metrics"
+    }
+  }
+}

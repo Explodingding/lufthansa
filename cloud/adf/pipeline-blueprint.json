@@ -1,0 +1,151 @@
+{
+  "name": "airline_digital_experience_pipeline",
+  "description": "Azure Data Factory blueprint for orchestrating the airline digital experience data lake pipeline.",
+  "parameters": {
+    "environment": {
+      "type": "String",
+      "defaultValue": "dev"
+    },
+    "run_date": {
+      "type": "String",
+      "defaultValue": "@utcNow('yyyy-MM-dd')"
+    },
+    "airport_source": {
+      "type": "String",
+      "defaultValue": "synthetic"
+    },
+    "weather_source": {
+      "type": "String",
+      "defaultValue": "synthetic"
+    },
+    "raw_path": {
+      "type": "String",
+      "defaultValue": "abfss://airline-data@storage-account.dfs.core.windows.net/raw"
+    },
+    "bronze_path": {
+      "type": "String",
+      "defaultValue": "abfss://airline-data@storage-account.dfs.core.windows.net/bronze"
+    },
+    "silver_path": {
+      "type": "String",
+      "defaultValue": "abfss://airline-data@storage-account.dfs.core.windows.net/silver"
+    },
+    "gold_path": {
+      "type": "String",
+      "defaultValue": "abfss://airline-data@storage-account.dfs.core.windows.net/gold"
+    }
+  },
+  "activities": [
+    {
+      "name": "IngestRawData",
+      "type": "AzureFunctionActivity",
+      "dependsOn": [],
+      "policy": {
+        "timeout": "00:20:00",
+        "retry": 2,
+        "retryIntervalInSeconds": 60
+      },
+      "description": "Call a Python ingestion endpoint or containerized job that extracts API/synthetic data and writes raw files.",
+      "inputs": [],
+      "outputs": [
+        "raw_path"
+      ],
+      "parameters": {
+        "output_dir": "@pipeline().parameters.raw_path",
+        "airport_source": "@pipeline().parameters.airport_source",
+        "weather_source": "@pipeline().parameters.weather_source",
+        "run_date": "@pipeline().parameters.run_date"
+      }
+    },
+    {
+      "name": "BuildBronze",
+      "type": "DatabricksNotebook",
+      "dependsOn": [
+        {
+          "activity": "IngestRawData",
+          "dependencyConditions": [
+            "Succeeded"
+          ]
+        }
+      ],
+      "policy": {
+        "timeout": "00:30:00",
+        "retry": 1,
+        "retryIntervalInSeconds": 120
+      },
+      "description": "Run Databricks job task that maps validated raw files to bronze tables.",
+      "baseParameters": {
+        "raw_dir": "@pipeline().parameters.raw_path",
+        "output_dir": "@pipeline().parameters.bronze_path"
+      }
+    },
+    {
+      "name": "BuildSilver",
+      "type": "DatabricksNotebook",
+      "dependsOn": [
+        {
+          "activity": "BuildBronze",
+          "dependencyConditions": [
+            "Succeeded"
+          ]
+        }
+      ],
+      "policy": {
+        "timeout": "00:30:00",
+        "retry": 1,
+        "retryIntervalInSeconds": 120
+      },
+      "description": "Run Databricks job task that cleans and deduplicates bronze data into silver tables.",
+      "baseParameters": {
+        "bronze_dir": "@pipeline().parameters.bronze_path",
+        "output_dir": "@pipeline().parameters.silver_path"
+      }
+    },
+    {
+      "name": "BuildGold",
+      "type": "DatabricksNotebook",
+      "dependsOn": [
+        {
+          "activity": "BuildSilver",
+          "dependencyConditions": [
+            "Succeeded"
+          ]
+        }
+      ],
+      "policy": {
+        "timeout": "00:30:00",
+        "retry": 1,
+        "retryIntervalInSeconds": 120
+      },
+      "description": "Run Databricks job task that creates dashboard-ready gold tables.",
+      "baseParameters": {
+        "silver_dir": "@pipeline().parameters.silver_path",
+        "output_dir": "@pipeline().parameters.gold_path"
+      }
+    },
+    {
+      "name": "PublishRunSummary",
+      "type": "WebActivity",
+      "dependsOn": [
+        {
+          "activity": "BuildGold",
+          "dependencyConditions": [
+            "Succeeded"
+          ]
+        }
+      ],
+      "policy": {
+        "timeout": "00:05:00",
+        "retry": 0,
+        "retryIntervalInSeconds": 30
+      },
+      "description": "Placeholder notification activity for pipeline run summary and dashboard data readiness."
+    }
+  ],
+  "schedule": {
+    "frequency": "Day",
+    "interval": 1,
+    "timeZone": "UTC",
+    "startTime": "2026-05-06T04:00:00Z"
+  }
+}

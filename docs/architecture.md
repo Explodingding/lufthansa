@@ -218,6 +218,8 @@ Potential responsibilities:
 
 The selected project target is Python 3.12 with PySpark 3.5.2, aligned with the Databricks Runtime 16.4 LTS reference.
 
+The concrete cloud mapping is documented in [Cloud Blueprint](cloud-blueprint.md), with reviewable ADF and Databricks JSON artefacts under `cloud/`.
+
 ## Error Handling Approach
 
 The MVP uses a simple error handling model:
