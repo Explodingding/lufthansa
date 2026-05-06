@@ -210,7 +210,7 @@ These items are intentionally excluded from the MVP:
 - [x] Gold layer is implemented.
 - [ ] Exploratory notebook exists.
 - [x] SQL insights exist.
-- [ ] Streamlit dashboard exists.
+- [x] Streamlit dashboard exists.
 - [ ] ADF blueprint is detailed.
 - [ ] Databricks blueprint is detailed.
 - [ ] README includes final demo flow.

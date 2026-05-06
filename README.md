@@ -18,7 +18,7 @@ Instead of presenting only a CV, this repository demonstrates how I would approa
 - prepare CI checks for review-ready development,
 - show business value through notebooks, SQL, and a Streamlit dashboard.
 
-For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For bronze processing details, see [Bronze Layer](docs/bronze-layer.md). For silver cleaning details, see [Silver Layer](docs/silver-layer.md). For business-ready tables, see [Gold Layer](docs/gold-layer.md). For SQL examples, see [SQL Insights](docs/sql-insights.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
+For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For bronze processing details, see [Bronze Layer](docs/bronze-layer.md). For silver cleaning details, see [Silver Layer](docs/silver-layer.md). For business-ready tables, see [Gold Layer](docs/gold-layer.md). For SQL examples, see [SQL Insights](docs/sql-insights.md). For dashboard usage, see [Streamlit Dashboard](docs/dashboard.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
 
 ## Business Scenario
 
@@ -90,6 +90,7 @@ airline-ingest-raw --output-dir data/raw
 airline-build-bronze --raw-dir data/raw --output-dir data/bronze
 airline-build-silver --bronze-dir data/bronze --output-dir data/silver
 airline-build-gold --silver-dir data/silver --output-dir data/gold
+streamlit run dashboard/app.py
 airline-ingest-raw --airport-source ourairports --output-dir data/raw
 airline-ingest-raw --airport-source ourairports --weather-source openmeteo --output-dir data/raw
 ```
@@ -124,6 +125,12 @@ Build the gold layer from silver datasets:
 airline-build-gold --silver-dir data/silver --output-dir data/gold
 ```
 
+Run the dashboard after building the gold layer:
+
+```powershell
+streamlit run dashboard/app.py
+```
+
 Optionally use public airport metadata from OurAirports:
 
 ```powershell
@@ -150,5 +157,6 @@ Day 2 ingestion foundation is in progress:
 - bronze Parquet build from raw JSON sources,
 - silver cleaning with delay fields and deduplication,
 - gold business tables for SQL and dashboard use,
-- SQL insight queries over gold tables.
+- SQL insight queries over gold tables,
+- Streamlit dashboard over gold tables.
 
