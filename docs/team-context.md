@@ -15,6 +15,14 @@ The Middleware team owns integration concerns between operational systems and do
 
 The local implementation represents this through API extractor modules, raw landing files, schema contracts, and tests around input expectations.
 
+## Middleware And Data Engineering Boundary
+
+The boundary between Middleware and Data Engineering is contract-based, not team-name-based.
+
+Middleware usually owns making data available reliably. Data Engineering usually owns making that data trustworthy and useful for analytics. The exact split can be fluid depending on source-system maturity, team setup, and integration platform capabilities.
+
+In this project, the boundary is the agreed data contract. Middleware-style sources provide API-like payloads or files, and the data platform validates those payloads before turning them into analytical datasets.
+
 ## Digital Hangar Perspective
 
 Digital Hangar owns digital travel experience outcomes. In this project, that means:
@@ -37,4 +45,3 @@ The repository is designed as if it were delivered by a small cross-functional t
 - product owner and business analyst: acceptance criteria and business metrics,
 - scrum master or project manager: MVP scope and incremental delivery,
 - data engineer: pipelines, tests, quality rules, SQL, CI/CD.
-

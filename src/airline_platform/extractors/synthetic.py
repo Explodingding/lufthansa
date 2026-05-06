@@ -93,4 +93,3 @@ def build_synthetic_data() -> SyntheticAirlineData:
             },
         ],
     )
-

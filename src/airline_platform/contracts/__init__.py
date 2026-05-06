@@ -1,6 +1,19 @@
 """Data contracts for Middleware-facing source payloads."""
 
-from airline_platform.contracts.schemas import ContractField, SourceContract, get_contract
+from airline_platform.contracts.schemas import (
+    CommunicationChannel,
+    ContractField,
+    FlightStatus,
+    PassengerEventType,
+    SourceContract,
+    get_contract,
+)
 
-__all__ = ["ContractField", "SourceContract", "get_contract"]
-
+__all__ = [
+    "CommunicationChannel",
+    "ContractField",
+    "FlightStatus",
+    "PassengerEventType",
+    "SourceContract",
+    "get_contract",
+]

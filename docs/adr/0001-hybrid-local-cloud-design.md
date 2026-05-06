@@ -30,4 +30,3 @@ Cloud blueprints will show how the same flow maps to:
 ## Consequences
 
 This keeps the project easy to review and run while still demonstrating cloud architecture thinking. The cloud part is intentionally a blueprint, not a hard runtime dependency.
-

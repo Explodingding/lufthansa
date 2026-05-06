@@ -31,4 +31,3 @@ ruff format --check .
 ```
 
 This keeps quality gates visible without adding unnecessary tooling complexity.
-

@@ -18,6 +18,8 @@ Instead of presenting only a CV, this repository demonstrates how I would approa
 - prepare CI checks for review-ready development,
 - show business value through notebooks, SQL, and a Streamlit dashboard.
 
+For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
+
 ## Business Scenario
 
 Middleware exposes flight, airport, weather, and passenger-event data through APIs and operational files. Digital Hangar product teams need reliable insights to understand disruptions, punctuality, route performance, and the impact of operational events on the digital travel experience.
@@ -41,6 +43,8 @@ flowchart LR
     adfBlueprint["Azure Data Factory Blueprint"] --> apiExtractor
     databricksBlueprint["Databricks Job Blueprint"] --> bronzeLayer
 ```
+
+
 
 ## Planned Stack
 
@@ -70,13 +74,18 @@ tests/                  Unit and data quality tests
 
 ## Development Commands
 
-Use Python 3.11 or 3.12 for local development. This matches the intended PySpark and Databricks-oriented runtime.
+Python 3.14.4 is the latest stable CPython release at the time of writing, but
+this project targets Python 3.12 for development and CI. The reason is pragmatic:
+Databricks Runtime 16.4 LTS is powered by Apache Spark 3.5.2, so Python 3.12 with
+PySpark 3.5.x is a safer portfolio target than Python 3.13 or 3.14. Azure Data
+Factory is treated as an orchestrator for Databricks jobs, not as the Python
+runtime owner.
 
 ```bash
 python -m pip install -e ".[dev]"
 ruff check .
 ruff format .
-pytest
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest
 ```
 
 On Windows PowerShell:

@@ -14,5 +14,5 @@ format:
 	ruff format .
 
 test:
-	pytest
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest
 

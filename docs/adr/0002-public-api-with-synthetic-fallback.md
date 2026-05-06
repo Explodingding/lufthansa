@@ -24,4 +24,3 @@ The synthetic fallback guarantees that the project remains runnable during inter
 ## Consequences
 
 The project can show API extraction without making the demo fragile. Tests should run only against deterministic local fixtures and synthetic data.
-
