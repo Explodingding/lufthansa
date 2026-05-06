@@ -1,9 +1,12 @@
-.PHONY: install check lint format test
+.PHONY: install check ingest-raw lint format test
 
 install:
 	python -m pip install -e ".[dev]"
 
 check: lint test
+
+ingest-raw:
+	airline-ingest-raw --output-dir data/raw
 
 lint:
 	ruff check .

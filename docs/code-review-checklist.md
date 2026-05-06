@@ -31,7 +31,6 @@ Use this checklist to keep the project aligned with clean code, TDD, CI/CD, and 
 
 - `ruff check .` passes.
 - `ruff format --check .` passes.
-- `pytest` passes.
+- `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest` passes.
 - The README documents local commands.
 - The change is small enough to review.
-

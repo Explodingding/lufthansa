@@ -235,4 +235,3 @@ The MVP intentionally does not include:
 - machine learning predictions.
 
 These exclusions keep the scope focused on data engineering fundamentals: contracts, validation, processing, testing, SQL, and dashboard-ready outputs.
-

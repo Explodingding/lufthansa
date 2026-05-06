@@ -44,8 +44,6 @@ flowchart LR
     databricksBlueprint["Databricks Job Blueprint"] --> bronzeLayer
 ```
 
-
-
 ## Planned Stack
 
 - Python, Pandas, NumPy
@@ -86,6 +84,9 @@ python -m pip install -e ".[dev]"
 ruff check .
 ruff format .
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest
+airline-ingest-raw --output-dir data/raw
+airline-ingest-raw --airport-source ourairports --output-dir data/raw
+airline-ingest-raw --airport-source ourairports --weather-source openmeteo --output-dir data/raw
 ```
 
 On Windows PowerShell:
@@ -94,13 +95,33 @@ On Windows PowerShell:
 .\scripts\run_checks.ps1
 ```
 
+Run the first local ingestion step:
+
+```powershell
+airline-ingest-raw --output-dir data/raw
+```
+
+Optionally use public airport metadata from OurAirports:
+
+```powershell
+airline-ingest-raw --airport-source ourairports --output-dir data/raw
+```
+
+Optionally enrich weather with Open-Meteo for airports that include coordinates:
+
+```powershell
+airline-ingest-raw --airport-source ourairports --weather-source openmeteo --output-dir data/raw
+```
+
 ## Current Status
 
-Day 1 foundation is in progress:
+Day 2 ingestion foundation is in progress:
 
 - repository structure,
 - project narrative,
 - data contracts,
 - clean code tooling,
-- first tests and CI workflow.
+- first tests and CI workflow,
+- synthetic fallback raw ingestion,
+- validation summary for raw sources.
 

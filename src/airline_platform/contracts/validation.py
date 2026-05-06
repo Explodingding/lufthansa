@@ -127,14 +127,28 @@ def _validate_flight_record(index: int, record: Mapping[str, object]) -> list[st
 
 
 def _validate_airport_record(index: int, record: Mapping[str, object]) -> list[str]:
+    errors: list[str] = []
+
     if (
         "airport_code" in record
         and not _is_blank(record["airport_code"])
         and not _is_iata_code(record["airport_code"])
     ):
-        return [f"airports[{index}] invalid IATA airport code for airport_code"]
+        errors.append(f"airports[{index}] invalid IATA airport code for airport_code")
 
-    return []
+    coordinate_ranges = {
+        "latitude_deg": (-90.0, 90.0),
+        "longitude_deg": (-180.0, 180.0),
+    }
+    for field_name, (minimum, maximum) in coordinate_ranges.items():
+        if field_name not in record or _is_blank(record[field_name]):
+            continue
+        if not _is_number_in_range(record[field_name], minimum, maximum):
+            errors.append(
+                f"airports[{index}] invalid numeric range for {field_name}: {record[field_name]}"
+            )
+
+    return errors
 
 
 def _validate_weather_record(index: int, record: Mapping[str, object]) -> list[str]:

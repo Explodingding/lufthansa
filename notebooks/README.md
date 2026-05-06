@@ -9,4 +9,3 @@ The notebook should document:
 - first business hypotheses,
 - candidate metrics for the dashboard,
 - data quality observations before PySpark processing.
-

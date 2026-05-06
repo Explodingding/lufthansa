@@ -8,4 +8,3 @@ Planned questions:
 - Which airports contribute most to disruption impact?
 - How does weather correlate with departure delay?
 - Which passenger communication events happen around disruptions?
-

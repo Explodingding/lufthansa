@@ -196,19 +196,21 @@ These items are intentionally excluded from the MVP:
 
 ## Completion Checklist
 
-- Repository structure exists.
-- Project narrative exists.
-- Initial data contracts exist.
-- Code quality tooling exists.
-- Initial tests exist.
-- Data ingestion writes raw files.
-- Validation summary is produced.
-- Bronze layer is implemented.
-- Silver layer is implemented.
-- Gold layer is implemented.
-- Exploratory notebook exists.
-- SQL insights exist.
-- Streamlit dashboard exists.
-- ADF blueprint is detailed.
-- Databricks blueprint is detailed.
-- README includes final demo flow.
+- [x] Repository structure exists.
+- [x] Project narrative exists.
+- [x] Initial data contracts exist.
+- [x] Code quality tooling exists.
+- [x] Initial tests exist.
+- [x] Data ingestion writes raw files.
+- [x] Validation summary is produced.
+- [x] Public airport metadata extractor exists.
+- [x] Public weather enrichment extractor exists.
+- [ ] Bronze layer is implemented.
+- [ ] Silver layer is implemented.
+- [ ] Gold layer is implemented.
+- [ ] Exploratory notebook exists.
+- [ ] SQL insights exist.
+- [ ] Streamlit dashboard exists.
+- [ ] ADF blueprint is detailed.
+- [ ] Databricks blueprint is detailed.
+- [ ] README includes final demo flow.

@@ -64,7 +64,9 @@ CONTRACTS: dict[SourceContract, tuple[ContractField, ...]] = {
         ContractField("airport_name", "string"),
         ContractField("city", "string"),
         ContractField("country", "string"),
-        ContractField("timezone", "string"),
+        ContractField("timezone", "string", required=False),
+        ContractField("latitude_deg", "float", required=False),
+        ContractField("longitude_deg", "float", required=False),
     ),
     SourceContract.WEATHER: (
         ContractField("airport_code", "string"),

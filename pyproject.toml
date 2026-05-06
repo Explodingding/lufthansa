@@ -16,6 +16,9 @@ dependencies = [
     "streamlit>=1.35",
 ]
 
+[project.scripts]
+airline-ingest-raw = "airline_platform.jobs.ingest_raw:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.2",

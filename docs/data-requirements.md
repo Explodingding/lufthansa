@@ -51,14 +51,20 @@ Required fields:
 - `airport_code`: IATA airport code.
 - `airport_name`: readable airport name.
 - `city`: city served by the airport.
-- `country`: country name.
+- `country`: country name or ISO country code, depending on source.
+
+Optional fields:
+
 - `timezone`: source-local timezone name.
+- `latitude_deg`: airport latitude in decimal degrees.
+- `longitude_deg`: airport longitude in decimal degrees.
 
 Minimum rules:
 
 - `airport_code` must be unique.
 - `timezone` should be a valid timezone string.
 - airport records should cover all airport codes referenced by flights.
+- latitude and longitude, when available, should be within valid coordinate ranges.
 
 ### Weather
 
@@ -69,6 +75,11 @@ Required fields:
 - `temperature_c`: temperature in Celsius.
 - `wind_speed_kmh`: wind speed in kilometers per hour.
 - `precipitation_mm`: precipitation in millimeters.
+
+Public source:
+
+- Open-Meteo historical weather API can provide hourly weather by airport coordinates.
+- Public weather enrichment is optional; synthetic weather remains the deterministic fallback.
 
 Minimum rules:
 
@@ -218,4 +229,3 @@ To keep the project focused, the MVP will not include:
 - ML predictions.
 
 These are intentionally out of scope. The goal is to demonstrate data engineering delivery, not to imitate a full enterprise platform.
-
