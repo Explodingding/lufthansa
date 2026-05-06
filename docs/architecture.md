@@ -169,6 +169,8 @@ Expected content:
 - derived delay fields,
 - clear handling of cancelled or future flights.
 
+The local silver job reads bronze Parquet datasets and writes cleaned Parquet datasets under `data/silver/`. For details, see [Silver Layer](silver-layer.md).
+
 ### Gold Layer
 
 Purpose:

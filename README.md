@@ -18,7 +18,7 @@ Instead of presenting only a CV, this repository demonstrates how I would approa
 - prepare CI checks for review-ready development,
 - show business value through notebooks, SQL, and a Streamlit dashboard.
 
-For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For bronze processing details, see [Bronze Layer](docs/bronze-layer.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
+For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For bronze processing details, see [Bronze Layer](docs/bronze-layer.md). For silver cleaning details, see [Silver Layer](docs/silver-layer.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
 
 ## Business Scenario
 
@@ -86,6 +86,7 @@ ruff format .
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest
 airline-ingest-raw --output-dir data/raw
 airline-build-bronze --raw-dir data/raw --output-dir data/bronze
+airline-build-silver --bronze-dir data/bronze --output-dir data/silver
 airline-ingest-raw --airport-source ourairports --output-dir data/raw
 airline-ingest-raw --airport-source ourairports --weather-source openmeteo --output-dir data/raw
 ```
@@ -106,6 +107,12 @@ Build the bronze layer from validated raw files:
 
 ```powershell
 airline-build-bronze --raw-dir data/raw --output-dir data/bronze
+```
+
+Build the silver layer from bronze datasets:
+
+```powershell
+airline-build-silver --bronze-dir data/bronze --output-dir data/silver
 ```
 
 Optionally use public airport metadata from OurAirports:
@@ -131,5 +138,6 @@ Day 2 ingestion foundation is in progress:
 - first tests and CI workflow,
 - synthetic fallback raw ingestion,
 - validation summary for raw sources,
-- bronze Parquet build from raw JSON sources.
+- bronze Parquet build from raw JSON sources,
+- silver cleaning with delay fields and deduplication.
 

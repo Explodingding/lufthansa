@@ -2,8 +2,6 @@
 
 import argparse
 import json
-import os
-import shutil
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -12,6 +10,7 @@ from pyspark.sql.functions import current_timestamp, input_file_name
 from pyspark.sql.types import DoubleType, StringType, StructField, StructType, TimestampType
 
 from airline_platform.contracts import SourceContract, get_contract
+from airline_platform.jobs.parquet_io import reset_output_dir, write_parquet_dataset
 
 BRONZE_SOURCES = (
     SourceContract.FLIGHTS,
@@ -70,7 +69,7 @@ def build_bronze_layer(
             output_path = output_dir / source.value
             record_count = bronze_frame.count()
 
-            _write_bronze_frame(bronze_frame, output_path)
+            write_parquet_dataset(bronze_frame, output_path)
             summaries.append(
                 SourceBronzeSummary(
                     source=source.value,
@@ -154,30 +153,10 @@ def _write_summary(
     output_dir: Path,
 ) -> None:
     summary_dir = output_dir / "_build_summary"
-    _reset_output_dir(summary_dir)
+    reset_output_dir(summary_dir)
     with (summary_dir / "summary.json").open("w", encoding="utf-8") as file:
         json.dump(asdict(summary), file, indent=2, sort_keys=True)
         file.write("\n")
-
-
-def _write_bronze_frame(frame: DataFrame, output_path: Path) -> None:
-    _reset_output_dir(output_path)
-
-    if _should_use_local_parquet_writer():
-        frame.toPandas().to_parquet(output_path / "part-00000.parquet", index=False)
-        return
-
-    frame.write.mode("overwrite").parquet(str(output_path))
-
-
-def _reset_output_dir(output_path: Path) -> None:
-    if output_path.exists():
-        shutil.rmtree(output_path)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-
-def _should_use_local_parquet_writer() -> bool:
-    return os.name == "nt" and not os.environ.get("HADOOP_HOME")
 
 
 def _create_spark_session() -> SparkSession:

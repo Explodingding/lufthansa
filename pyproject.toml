@@ -19,6 +19,7 @@ dependencies = [
 
 [project.scripts]
 airline-build-bronze = "airline_platform.jobs.build_bronze:main"
+airline-build-silver = "airline_platform.jobs.build_silver:main"
 airline-ingest-raw = "airline_platform.jobs.ingest_raw:main"
 
 [project.optional-dependencies]

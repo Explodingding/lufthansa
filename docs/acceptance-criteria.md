@@ -206,7 +206,7 @@ These items are intentionally excluded from the MVP:
 - [x] Public airport metadata extractor exists.
 - [x] Public weather enrichment extractor exists.
 - [x] Bronze layer is implemented.
-- [ ] Silver layer is implemented.
+- [x] Silver layer is implemented.
 - [ ] Gold layer is implemented.
 - [ ] Exploratory notebook exists.
 - [ ] SQL insights exist.
