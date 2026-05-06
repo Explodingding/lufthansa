@@ -18,7 +18,7 @@ Instead of presenting only a CV, this repository demonstrates how I would approa
 - prepare CI checks for review-ready development,
 - show business value through notebooks, SQL, and a Streamlit dashboard.
 
-For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
+For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For bronze processing details, see [Bronze Layer](docs/bronze-layer.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
 
 ## Business Scenario
 
@@ -85,6 +85,7 @@ ruff check .
 ruff format .
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest
 airline-ingest-raw --output-dir data/raw
+airline-build-bronze --raw-dir data/raw --output-dir data/bronze
 airline-ingest-raw --airport-source ourairports --output-dir data/raw
 airline-ingest-raw --airport-source ourairports --weather-source openmeteo --output-dir data/raw
 ```
@@ -99,6 +100,12 @@ Run the first local ingestion step:
 
 ```powershell
 airline-ingest-raw --output-dir data/raw
+```
+
+Build the bronze layer from validated raw files:
+
+```powershell
+airline-build-bronze --raw-dir data/raw --output-dir data/bronze
 ```
 
 Optionally use public airport metadata from OurAirports:
@@ -123,5 +130,6 @@ Day 2 ingestion foundation is in progress:
 - clean code tooling,
 - first tests and CI workflow,
 - synthetic fallback raw ingestion,
-- validation summary for raw sources.
+- validation summary for raw sources,
+- bronze Parquet build from raw JSON sources.
 

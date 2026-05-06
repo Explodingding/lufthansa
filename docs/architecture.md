@@ -146,7 +146,10 @@ Expected content:
 - one dataset per source,
 - explicit schema,
 - parseable timestamps,
-- consistent file format.
+- consistent file format,
+- minimal technical metadata such as bronze load timestamp and source file path.
+
+The local bronze job reads validated raw JSON and writes Parquet datasets under `data/bronze/`. For details, see [Bronze Layer](bronze-layer.md).
 
 ### Silver Layer
 
