@@ -184,6 +184,8 @@ Expected content:
 - `gold_airport_disruption`,
 - `gold_passenger_communication`.
 
+The local gold job reads silver Parquet datasets and writes business-ready Parquet tables under `data/gold/`. For details, see [Gold Layer](gold-layer.md).
+
 ## Cloud Mapping
 
 The project runs locally first, but its shape maps to Azure Data Factory and Databricks.

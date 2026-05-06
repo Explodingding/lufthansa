@@ -31,7 +31,7 @@ def test_build_silver_layer_writes_cleaned_outputs(tmp_path, spark) -> None:
 
     assert summary.total_records == 9
 
-    flights = pd.read_parquet(silver_dir / "flights" / "part-00000.parquet")
+    flights = pd.read_parquet(silver_dir / "flights")
     assert len(flights) == 2
     assert {
         "departure_delay_minutes",
@@ -104,7 +104,7 @@ def test_build_silver_layer_deduplicates_flights_by_flight_id(tmp_path, spark) -
     build_bronze_layer(raw_dir, bronze_dir, spark=spark)
     build_silver_layer(bronze_dir, silver_dir, spark=spark)
 
-    flights = pd.read_parquet(silver_dir / "flights" / "part-00000.parquet")
+    flights = pd.read_parquet(silver_dir / "flights")
 
     assert len(flights) == 1
     assert flights.iloc[0]["departure_delay_minutes"] == 40.0

@@ -18,7 +18,7 @@ Instead of presenting only a CV, this repository demonstrates how I would approa
 - prepare CI checks for review-ready development,
 - show business value through notebooks, SQL, and a Streamlit dashboard.
 
-For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For bronze processing details, see [Bronze Layer](docs/bronze-layer.md). For silver cleaning details, see [Silver Layer](docs/silver-layer.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
+For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For bronze processing details, see [Bronze Layer](docs/bronze-layer.md). For silver cleaning details, see [Silver Layer](docs/silver-layer.md). For business-ready tables, see [Gold Layer](docs/gold-layer.md). For SQL examples, see [SQL Insights](docs/sql-insights.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
 
 ## Business Scenario
 
@@ -79,7 +79,9 @@ PySpark 3.5.x is a safer portfolio target than Python 3.13 or 3.14. Azure Data
 Factory is treated as an orchestrator for Databricks jobs, not as the Python
 runtime owner.
 
-```bash
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev]"
 ruff check .
 ruff format .
@@ -87,6 +89,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest
 airline-ingest-raw --output-dir data/raw
 airline-build-bronze --raw-dir data/raw --output-dir data/bronze
 airline-build-silver --bronze-dir data/bronze --output-dir data/silver
+airline-build-gold --silver-dir data/silver --output-dir data/gold
 airline-ingest-raw --airport-source ourairports --output-dir data/raw
 airline-ingest-raw --airport-source ourairports --weather-source openmeteo --output-dir data/raw
 ```
@@ -115,6 +118,12 @@ Build the silver layer from bronze datasets:
 airline-build-silver --bronze-dir data/bronze --output-dir data/silver
 ```
 
+Build the gold layer from silver datasets:
+
+```powershell
+airline-build-gold --silver-dir data/silver --output-dir data/gold
+```
+
 Optionally use public airport metadata from OurAirports:
 
 ```powershell
@@ -139,5 +148,7 @@ Day 2 ingestion foundation is in progress:
 - synthetic fallback raw ingestion,
 - validation summary for raw sources,
 - bronze Parquet build from raw JSON sources,
-- silver cleaning with delay fields and deduplication.
+- silver cleaning with delay fields and deduplication,
+- gold business tables for SQL and dashboard use,
+- SQL insight queries over gold tables.
 

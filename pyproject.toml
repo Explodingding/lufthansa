@@ -9,16 +9,18 @@ description = "Portfolio data engineering platform for airline digital experienc
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
-    "numpy>=1.26",
-    "pandas>=2.2",
-    "pyarrow>=15",
-    "pyspark>=3.5.2,<3.6",
+    "numpy>=1.26,<2.0",
+    "pandas>=2.2,<3.0",
+    "pyarrow>=15,<18",
+    "pyspark==3.5.2",
     "requests>=2.32",
+    "setuptools>=69",
     "streamlit>=1.35",
 ]
 
 [project.scripts]
 airline-build-bronze = "airline_platform.jobs.build_bronze:main"
+airline-build-gold = "airline_platform.jobs.build_gold:main"
 airline-build-silver = "airline_platform.jobs.build_silver:main"
 airline-ingest-raw = "airline_platform.jobs.ingest_raw:main"
 

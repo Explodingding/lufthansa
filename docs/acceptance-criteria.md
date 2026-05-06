@@ -207,9 +207,9 @@ These items are intentionally excluded from the MVP:
 - [x] Public weather enrichment extractor exists.
 - [x] Bronze layer is implemented.
 - [x] Silver layer is implemented.
-- [ ] Gold layer is implemented.
+- [x] Gold layer is implemented.
 - [ ] Exploratory notebook exists.
-- [ ] SQL insights exist.
+- [x] SQL insights exist.
 - [ ] Streamlit dashboard exists.
 - [ ] ADF blueprint is detailed.
 - [ ] Databricks blueprint is detailed.

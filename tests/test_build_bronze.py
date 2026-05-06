@@ -33,7 +33,7 @@ def test_build_bronze_layer_writes_parquet_outputs(tmp_path, spark) -> None:
         "passenger_events",
     }
 
-    flights = pd.read_parquet(bronze_dir / "flights" / "part-00000.parquet")
+    flights = pd.read_parquet(bronze_dir / "flights")
     assert len(flights) == 2
     assert "_bronze_loaded_at_utc" in flights.columns
     assert "_source_file" in flights.columns
