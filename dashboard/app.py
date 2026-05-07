@@ -6,6 +6,8 @@ import pandas as pd
 import streamlit as st
 
 GOLD_DIR = Path("data/gold")
+WIND_BUCKET_BINS = [0, 15, 25, 35, 100]
+WIND_BUCKET_LABELS = ["0-15 km/h", "15-25 km/h", "25-35 km/h", "35+ km/h"]
 REQUIRED_GOLD_TABLES = {
     "flight_performance": "gold_flight_performance",
     "route_performance": "gold_route_performance",
@@ -270,12 +272,7 @@ def build_weather_delay_view(flight_performance: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()
 
     weather_delay = weather_delay.copy()
-    weather_delay["wind_bucket"] = pd.cut(
-        weather_delay["origin_wind_speed_kmh"],
-        bins=[0, 15, 25, 35, 100],
-        labels=["0-15 km/h", "15-25 km/h", "25-35 km/h", "35+ km/h"],
-        include_lowest=True,
-    )
+    weather_delay["wind_bucket"] = _assign_wind_bucket(weather_delay["origin_wind_speed_kmh"])
 
     view = (
         weather_delay.groupby("wind_bucket", observed=True)
@@ -289,6 +286,51 @@ def build_weather_delay_view(flight_performance: pd.DataFrame) -> pd.DataFrame:
     )
     view["delay_rate"] = view["delayed_flights"] / view["total_flights"]
     return view
+
+
+def build_delay_risk_heatmap(
+    flight_performance: pd.DataFrame,
+    minimum_segment_flights: int,
+) -> pd.DataFrame:
+    """Build route x wind-bucket matrix with observed delay probability."""
+
+    required_columns = {
+        "route",
+        "flight_id",
+        "origin_wind_speed_kmh",
+        "is_delayed",
+    }
+    if not required_columns.issubset(flight_performance.columns):
+        return pd.DataFrame()
+
+    risk_data = flight_performance[
+        ["route", "flight_id", "origin_wind_speed_kmh", "is_delayed"]
+    ].dropna()
+    if risk_data.empty:
+        return pd.DataFrame()
+
+    risk_data = risk_data.copy()
+    risk_data["wind_bucket"] = _assign_wind_bucket(risk_data["origin_wind_speed_kmh"])
+    segment_risk = (
+        risk_data.groupby(["route", "wind_bucket"], observed=True)
+        .agg(
+            total_flights=("flight_id", "count"),
+            delayed_flights=("is_delayed", "sum"),
+        )
+        .reset_index()
+    )
+    segment_risk = segment_risk.loc[segment_risk["total_flights"] >= minimum_segment_flights].copy()
+    if segment_risk.empty:
+        return pd.DataFrame()
+
+    segment_risk["delay_probability"] = (
+        segment_risk["delayed_flights"] / segment_risk["total_flights"]
+    )
+    return segment_risk.pivot(
+        index="route",
+        columns="wind_bucket",
+        values="delay_probability",
+    ).reindex(columns=WIND_BUCKET_LABELS)
 
 
 def filter_tables_by_routes(
@@ -361,6 +403,26 @@ def _format_percentage(value: float) -> str:
     return f"{value * 100:.1f}%"
 
 
+def _assign_wind_bucket(wind_speed: pd.Series) -> pd.Series:
+    return pd.cut(
+        wind_speed,
+        bins=WIND_BUCKET_BINS,
+        labels=WIND_BUCKET_LABELS,
+        include_lowest=True,
+    )
+
+
+def _delay_risk_cell_style(value: float) -> str:
+    if pd.isna(value):
+        return ""
+
+    intensity = min(max(float(value), 0.0), 0.5) / 0.5
+    red = 255
+    green = int(245 - intensity * 135)
+    blue = int(235 - intensity * 170)
+    return f"background-color: rgb({red}, {green}, {blue})"
+
+
 @st.cache_data(show_spinner=False)
 def _cached_load_dashboard_tables(gold_dir: str) -> tuple[dict[str, pd.DataFrame], bool]:
     return load_dashboard_tables(Path(gold_dir))
@@ -431,6 +493,13 @@ def main() -> None:
         options=["Delay rate", "Average delay", "Cancellations", "Total flights"],
     )
     top_n_routes = st.sidebar.slider("Top N routes", min_value=3, max_value=20, value=10)
+    minimum_heatmap_segment_flights = st.sidebar.slider(
+        "Min flights per heatmap segment",
+        min_value=1,
+        max_value=50,
+        value=10,
+        help="Hides route/wind combinations with too little data.",
+    )
 
     filtered_tables = filter_tables_by_routes(tables, selected_routes)
     filtered_flights = filter_flight_performance(
@@ -509,6 +578,23 @@ def main() -> None:
             hide_index=True,
         )
 
+    st.subheader("Delay Risk Heatmap")
+    st.caption(
+        "Observed delay probability by route and origin wind-speed bucket. "
+        "This is an exploratory statistical signal, not a causal model."
+    )
+    delay_risk_heatmap = build_delay_risk_heatmap(
+        filtered_tables["flight_performance"],
+        minimum_segment_flights=minimum_heatmap_segment_flights,
+    )
+    if delay_risk_heatmap.empty:
+        st.info("Not enough flight records are available for the selected heatmap threshold.")
+    else:
+        st.dataframe(
+            delay_risk_heatmap.style.format("{:.1%}").map(_delay_risk_cell_style),
+            use_container_width=True,
+        )
+
     st.subheader("Airport Disruption")
     airport_view = filtered_tables["airport_disruption"].sort_values(
         ["delay_rate", "cancelled_departures", "average_departure_delay_minutes"],
@@ -557,6 +643,8 @@ def main() -> None:
             - **Delayed flight**: `departure_delay_minutes > 15`.
             - **Cancelled flight**: flight status equals `cancelled`.
             - **Delay rate**: delayed flights divided by total flights.
+            - **Delay risk heatmap**: observed delay probability for route and wind-speed
+              combinations after the selected minimum sample-size threshold.
             - **Average departure delay**: mean of `departure_delay_minutes` in the selected view.
             - **Wind-delay correlation**: Pearson correlation between origin wind speed and
               departure delay minutes. It is exploratory, not a causal model.

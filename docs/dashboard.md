@@ -50,6 +50,7 @@ The dashboard includes:
 - route performance table,
 - airport disruption table,
 - weather vs departure delay exploration,
+- delay risk heatmap by route and wind-speed bucket,
 - passenger communication table,
 - route, delay, cancellation, and wind-speed filters,
 - route sorting and top-N display controls,
@@ -60,6 +61,7 @@ The dashboard includes:
 - **Delayed flight**: `departure_delay_minutes > 15`.
 - **Cancelled flight**: flight status equals `cancelled`.
 - **Delay rate**: delayed flights divided by total flights.
+- **Delay risk heatmap**: observed delay probability for route and wind-speed combinations. It helps identify statistical signals for investigation, but it is not a causal model.
 - **Average departure delay**: mean of `departure_delay_minutes` in the selected view.
 - **Wind-delay correlation**: Pearson correlation between origin wind speed and departure delay minutes. This is an exploratory indicator, not a causal model.
 - **Passenger communication events**: communication records connected to flight disruption context.
