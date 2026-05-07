@@ -148,7 +148,8 @@ Streamlit Community Cloud settings:
 
 - repository: `Explodingding/lufthansa`,
 - branch: `cursor/day-1-foundation` until this work is merged,
-- main file path: `dashboard/app.py`.
+- main file path: `dashboard/app.py`,
+- Python runtime: `runtime.txt` pins Streamlit Cloud to Python 3.12.
 
 The hosted dashboard falls back to embedded demo data when `data/gold` is not present. Local demos should still build the gold layer from the pipeline first.
 
