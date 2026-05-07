@@ -3,7 +3,13 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from dashboard.app import calculate_kpis, filter_tables_by_routes, load_gold_tables
+from dashboard.app import (
+    calculate_kpis,
+    create_demo_tables,
+    filter_tables_by_routes,
+    load_dashboard_tables,
+    load_gold_tables,
+)
 
 
 def test_calculate_kpis_returns_dashboard_metrics() -> None:
@@ -87,6 +93,28 @@ def test_load_gold_tables_reads_required_parquet_tables(tmp_path) -> None:
 def test_load_gold_tables_fails_when_required_table_is_missing(tmp_path) -> None:
     with pytest.raises(FileNotFoundError, match="Missing gold table"):
         load_gold_tables(tmp_path)
+
+
+def test_load_dashboard_tables_uses_demo_data_when_gold_tables_are_missing(tmp_path) -> None:
+    tables, using_demo_data = load_dashboard_tables(tmp_path)
+
+    assert using_demo_data is True
+    assert set(tables) == {
+        "flight_performance",
+        "route_performance",
+        "airport_disruption",
+        "passenger_communication",
+    }
+    assert len(tables["flight_performance"]) > 0
+
+
+def test_create_demo_tables_supports_dashboard_kpis() -> None:
+    tables = create_demo_tables()
+    kpis = calculate_kpis(tables["flight_performance"])
+
+    assert kpis["total_flights"] == 3
+    assert kpis["delayed_flights"] == 2
+    assert kpis["cancelled_flights"] == 1
 
 
 def _write_parquet_table(base_dir: Path, table_name: str, frame: pd.DataFrame) -> None:

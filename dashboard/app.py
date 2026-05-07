@@ -31,6 +31,75 @@ def load_gold_tables(gold_dir: Path = GOLD_DIR) -> dict[str, pd.DataFrame]:
     return tables
 
 
+def load_dashboard_tables(gold_dir: Path = GOLD_DIR) -> tuple[dict[str, pd.DataFrame], bool]:
+    """Load gold tables or return embedded demo data for hosted review environments."""
+
+    try:
+        return load_gold_tables(gold_dir), False
+    except FileNotFoundError:
+        return create_demo_tables(), True
+
+
+def create_demo_tables() -> dict[str, pd.DataFrame]:
+    """Create a small dashboard-ready dataset for Streamlit Community Cloud."""
+
+    flight_performance = pd.DataFrame(
+        {
+            "flight_id": ["LH-001-2026-05-06", "LH-002-2026-05-06", "LH-003-2026-05-06"],
+            "route": ["GDN-FRA", "FRA-GDN", "GDN-MUC"],
+            "origin_airport": ["GDN", "FRA", "GDN"],
+            "destination_airport": ["FRA", "GDN", "MUC"],
+            "is_delayed": [False, True, True],
+            "is_cancelled": [False, False, True],
+            "departure_delay_minutes": [12.0, 42.0, 0.0],
+        }
+    )
+    route_performance = pd.DataFrame(
+        {
+            "route": ["GDN-FRA", "FRA-GDN", "GDN-MUC"],
+            "total_flights": [1, 1, 1],
+            "delayed_flights": [0, 1, 1],
+            "cancelled_flights": [0, 0, 1],
+            "average_departure_delay_minutes": [12.0, 42.0, 0.0],
+            "delay_rate": [0.0, 1.0, 1.0],
+        }
+    )
+    airport_disruption = pd.DataFrame(
+        {
+            "origin_airport": ["GDN", "FRA"],
+            "airport_name": ["Gdansk Lech Walesa Airport", "Frankfurt Airport"],
+            "city": ["Gdansk", "Frankfurt"],
+            "country": ["Poland", "Germany"],
+            "total_departures": [2, 1],
+            "delayed_departures": [1, 1],
+            "cancelled_departures": [1, 0],
+            "average_departure_delay_minutes": [6.0, 42.0],
+            "delay_rate": [0.5, 1.0],
+        }
+    )
+    passenger_communication = pd.DataFrame(
+        {
+            "route": ["FRA-GDN", "GDN-MUC", "GDN-FRA"],
+            "event_type": [
+                "delay_notification_sent",
+                "cancellation_notification_sent",
+                "mobile_check_in",
+            ],
+            "channel": ["mobile_app", "email", "mobile_app"],
+            "event_count": [2, 1, 1],
+            "delayed_flight_events": [2, 1, 0],
+            "cancelled_flight_events": [0, 1, 0],
+        }
+    )
+
+    return {
+        "flight_performance": flight_performance,
+        "route_performance": route_performance,
+        "airport_disruption": airport_disruption,
+        "passenger_communication": passenger_communication,
+    }
+
+
 def calculate_kpis(flight_performance: pd.DataFrame) -> dict[str, float]:
     """Calculate high-level dashboard KPIs from flight-level gold data."""
 
@@ -74,8 +143,8 @@ def _format_percentage(value: float) -> str:
 
 
 @st.cache_data(show_spinner=False)
-def _cached_load_gold_tables(gold_dir: str) -> dict[str, pd.DataFrame]:
-    return load_gold_tables(Path(gold_dir))
+def _cached_load_dashboard_tables(gold_dir: str) -> tuple[dict[str, pd.DataFrame], bool]:
+    return load_dashboard_tables(Path(gold_dir))
 
 
 def main() -> None:
@@ -93,11 +162,12 @@ def main() -> None:
 
     gold_dir = st.sidebar.text_input("Gold data directory", value=str(GOLD_DIR))
 
-    try:
-        tables = _cached_load_gold_tables(gold_dir)
-    except FileNotFoundError as error:
-        st.error(str(error))
-        st.stop()
+    tables, using_demo_data = _cached_load_dashboard_tables(gold_dir)
+    if using_demo_data:
+        st.info(
+            "Using embedded demo data because local gold Parquet tables were not found. "
+            "Run the pipeline locally to use data/gold outputs."
+        )
 
     route_options = sorted(tables["route_performance"]["route"].dropna().unique().tolist())
     selected_routes = st.sidebar.multiselect(

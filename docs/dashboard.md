@@ -15,6 +15,8 @@ The dashboard reads local gold Parquet tables:
 - `data/gold/gold_airport_disruption/`
 - `data/gold/gold_passenger_communication/`
 
+If these local files are not available, for example in Streamlit Community Cloud, the dashboard falls back to a small embedded demo dataset. This keeps the hosted app reviewable while preserving the local gold-layer workflow for full pipeline demos.
+
 Before running the dashboard, build the pipeline:
 
 ```powershell
@@ -29,6 +31,16 @@ airline-build-gold --silver-dir data/silver --output-dir data/gold
 ```powershell
 streamlit run dashboard/app.py
 ```
+
+## Streamlit Community Cloud
+
+Recommended deployment settings:
+
+- repository: `Explodingding/lufthansa`,
+- branch: `cursor/day-1-foundation` until the work is merged to `master`,
+- main file path: `dashboard/app.py`.
+
+The app uses `requirements.txt` for a lightweight hosted dashboard environment. The full local project remains configured in `pyproject.toml`.
 
 ## Dashboard Views
 

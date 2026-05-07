@@ -20,6 +20,17 @@ Instead of presenting only a CV, this repository demonstrates how I would approa
 
 For the full project story, see [Project Narrative](docs/project-narrative.md). For data expectations across the pipeline, see [Data Requirements](docs/data-requirements.md). For the technical design, see [Architecture](docs/architecture.md). For cloud mapping, see [Cloud Blueprint](docs/cloud-blueprint.md). For bronze processing details, see [Bronze Layer](docs/bronze-layer.md). For silver cleaning details, see [Silver Layer](docs/silver-layer.md). For business-ready tables, see [Gold Layer](docs/gold-layer.md). For exploratory analysis, see [Exploratory Analysis](docs/exploratory-analysis.md). For SQL examples, see [SQL Insights](docs/sql-insights.md). For dashboard usage, see [Streamlit Dashboard](docs/dashboard.md). For a short recruiter-facing version, see [Recruiter Summary](docs/recruiter-summary.md).
 
+## 30-Second Review Path
+
+If you are reviewing this project quickly:
+
+1. Read the business scenario and target architecture below.
+2. Check the completed data lake flow: raw -> bronze -> silver -> gold.
+3. Open the SQL examples in `sql/`.
+4. Review the Streamlit dashboard in `dashboard/app.py`.
+5. Check the ADF and Databricks blueprints in `cloud/`.
+6. Read the short [Recruiter Summary](docs/recruiter-summary.md) or the full [Demo Script](docs/demo-script.md).
+
 ## Business Scenario
 
 Middleware exposes flight, airport, weather, and passenger-event data through APIs and operational files. Digital Hangar product teams need reliable insights to understand disruptions, punctuality, route performance, and the impact of operational events on the digital travel experience.
@@ -130,6 +141,16 @@ Run the dashboard after building the gold layer:
 ```powershell
 streamlit run dashboard/app.py
 ```
+
+For live sharing, Streamlit Community Cloud, Render, Hugging Face Spaces, or Azure App Service are better fits than Netlify because this dashboard is a Python Streamlit app. Netlify is useful only for a static landing page that links back to this repository or to a hosted Streamlit app.
+
+Streamlit Community Cloud settings:
+
+- repository: `Explodingding/lufthansa`,
+- branch: `cursor/day-1-foundation` until this work is merged,
+- main file path: `dashboard/app.py`.
+
+The hosted dashboard falls back to embedded demo data when `data/gold` is not present. Local demos should still build the gold layer from the pipeline first.
 
 Optionally use public airport metadata from OurAirports:
 

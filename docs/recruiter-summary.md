@@ -20,6 +20,10 @@ This is a portfolio data engineering project built around an airline digital pro
 - CI/CD and review-ready development workflow.
 - Azure Data Factory and Databricks architecture awareness.
 
+## Fast Review Path
+
+For a quick review, start with `README.md`, then check the final demo flow, SQL examples under `sql/`, the Streamlit dashboard in `dashboard/app.py`, and the cloud blueprints under `cloud/`.
+
 ## Why It Matches The Role
 
 The role mentions high-quality data processing pipelines, dataset exploration, dashboards, API extraction, structured databases, modern data architecture, Azure Data Factory, Databricks, Git, pytest, Scrum, TDD, CI/CD, DevOps, clean code, and code review.
