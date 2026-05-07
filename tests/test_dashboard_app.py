@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from dashboard.app import (
+    build_delay_risk_heatmap,
     build_weather_delay_view,
     calculate_kpis,
     calculate_weather_delay_summary,
@@ -178,6 +179,37 @@ def test_build_weather_delay_view_groups_flights_by_wind_bucket() -> None:
         {"0-15 km/h", "15-25 km/h", "25-35 km/h", "35+ km/h"}
     )
     assert weather_delay_view["total_flights"].sum() == 720
+
+
+def test_build_delay_risk_heatmap_returns_route_wind_probability_matrix() -> None:
+    tables = create_demo_tables()
+
+    heatmap = build_delay_risk_heatmap(
+        tables["flight_performance"],
+        minimum_segment_flights=5,
+    )
+
+    assert not heatmap.empty
+    assert set(heatmap.index).issubset(set(tables["route_performance"]["route"]))
+    assert heatmap.columns.astype(str).tolist() == [
+        "0-15 km/h",
+        "15-25 km/h",
+        "25-35 km/h",
+        "35+ km/h",
+    ]
+    assert heatmap.min(skipna=True).min() >= 0
+    assert heatmap.max(skipna=True).max() <= 1
+
+
+def test_build_delay_risk_heatmap_respects_minimum_segment_size() -> None:
+    tables = create_demo_tables()
+
+    heatmap = build_delay_risk_heatmap(
+        tables["flight_performance"],
+        minimum_segment_flights=1_000,
+    )
+
+    assert heatmap.empty
 
 
 def _write_parquet_table(base_dir: Path, table_name: str, frame: pd.DataFrame) -> None:
