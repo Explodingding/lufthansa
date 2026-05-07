@@ -143,9 +143,52 @@ Optionally enrich weather with Open-Meteo for airports that include coordinates:
 airline-ingest-raw --airport-source ourairports --weather-source openmeteo --output-dir data/raw
 ```
 
+## Final Demo Flow
+
+Use this flow when presenting the project to a recruiter or technical interviewer.
+
+1. Start with the business story:
+   - Middleware provides operational flight, airport, weather, and passenger-event signals.
+   - Digital Hangar needs reliable data products for disruption, punctuality, and passenger communication insights.
+
+2. Show the local data lake pipeline:
+
+```powershell
+airline-ingest-raw --output-dir data/raw
+airline-build-bronze --raw-dir data/raw --output-dir data/bronze
+airline-build-silver --bronze-dir data/bronze --output-dir data/silver
+airline-build-gold --silver-dir data/silver --output-dir data/gold
+```
+
+3. Explain the layer responsibilities:
+   - raw keeps source-shaped validated files,
+   - bronze preserves source-aligned ingested datasets,
+   - silver cleans, deduplicates, and derives operational fields,
+   - gold prepares business-ready tables for SQL and dashboarding.
+
+4. Open the exploratory analysis:
+   - `notebooks/exploratory_analysis.ipynb`
+   - Focus on missing values, duplicates, delay distribution, and business observations.
+
+5. Review SQL insights:
+   - `sql/route_delay_analysis.sql`
+   - `sql/airport_disruption_ranking.sql`
+   - `sql/passenger_communication_impact.sql`
+
+6. Run the dashboard:
+
+```powershell
+streamlit run dashboard/app.py
+```
+
+7. Close with the cloud mapping:
+   - ADF blueprint: `cloud/adf/pipeline-blueprint.json`
+   - Databricks blueprint: `cloud/databricks/job-blueprint.json`
+   - Runtime target: Databricks Runtime 16.4 LTS, Python 3.12, Spark/PySpark 3.5.2.
+
 ## Current Status
 
-Day 2 ingestion foundation is in progress:
+MVP implementation status:
 
 - repository structure,
 - project narrative,

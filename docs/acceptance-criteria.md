@@ -213,4 +213,4 @@ These items are intentionally excluded from the MVP:
 - [x] Streamlit dashboard exists.
 - [x] ADF blueprint is detailed.
 - [x] Databricks blueprint is detailed.
-- [ ] README includes final demo flow.
+- [x] README includes final demo flow.

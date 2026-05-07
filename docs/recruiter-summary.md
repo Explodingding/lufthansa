@@ -24,7 +24,7 @@ This is a portfolio data engineering project built around an airline digital pro
 
 The role mentions high-quality data processing pipelines, dataset exploration, dashboards, API extraction, structured databases, modern data architecture, Azure Data Factory, Databricks, Git, pytest, Scrum, TDD, CI/CD, DevOps, clean code, and code review.
 
-This project is intentionally structured to cover those responsibilities in a small but realistic scope. It is not a toy notebook; it is a compact data product with contracts, tests, architecture decisions, and a planned dashboard.
+This project is intentionally structured to cover those responsibilities in a small but realistic scope. It is not a toy notebook; it is a compact data product with contracts, tests, architecture decisions, SQL insights, and a working dashboard.
 
 ## Short Application Message
 
