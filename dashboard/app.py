@@ -309,6 +309,54 @@ def filter_tables_by_routes(
     return filtered
 
 
+def filter_flight_performance(
+    flight_performance: pd.DataFrame,
+    delayed_only: bool = False,
+    cancelled_only: bool = False,
+    wind_speed_range: tuple[float, float] | None = None,
+) -> pd.DataFrame:
+    """Apply dashboard filters to flight-level data."""
+
+    filtered = flight_performance.copy()
+    if delayed_only:
+        filtered = filtered.loc[filtered["is_delayed"]].copy()
+    if cancelled_only:
+        filtered = filtered.loc[filtered["is_cancelled"]].copy()
+    if wind_speed_range and "origin_wind_speed_kmh" in filtered.columns:
+        min_wind, max_wind = wind_speed_range
+        filtered = filtered.loc[
+            filtered["origin_wind_speed_kmh"].between(min_wind, max_wind)
+        ].copy()
+
+    return filtered
+
+
+def filter_route_performance(
+    route_performance: pd.DataFrame,
+    minimum_delay_rate: float,
+) -> pd.DataFrame:
+    """Filter route-level performance by minimum delay rate."""
+
+    return route_performance.loc[route_performance["delay_rate"] >= minimum_delay_rate].copy()
+
+
+def sort_and_limit_routes(
+    route_performance: pd.DataFrame,
+    sort_by: str,
+    top_n: int,
+) -> pd.DataFrame:
+    """Sort route performance for dashboard display."""
+
+    sort_columns = {
+        "Delay rate": ["delay_rate", "average_departure_delay_minutes"],
+        "Average delay": ["average_departure_delay_minutes", "delay_rate"],
+        "Cancellations": ["cancelled_flights", "delay_rate"],
+        "Total flights": ["total_flights", "delay_rate"],
+    }
+    columns = sort_columns[sort_by]
+    return route_performance.sort_values(columns, ascending=[False] * len(columns)).head(top_n)
+
+
 def _format_percentage(value: float) -> str:
     return f"{value * 100:.1f}%"
 
@@ -331,7 +379,8 @@ def main() -> None:
         "and passenger communication."
     )
 
-    gold_dir = st.sidebar.text_input("Gold data directory", value=str(GOLD_DIR))
+    with st.sidebar.expander("Advanced data settings"):
+        gold_dir = st.text_input("Gold data directory", value=str(GOLD_DIR))
 
     tables, using_demo_data = _cached_load_dashboard_tables(gold_dir)
     if using_demo_data:
@@ -340,6 +389,10 @@ def main() -> None:
             "Run the pipeline locally to use data/gold outputs."
         )
 
+    data_mode = "Hosted demo data" if using_demo_data else "Local gold data"
+    st.sidebar.subheader("Current Selection")
+    st.sidebar.caption(data_mode)
+
     route_options = sorted(tables["route_performance"]["route"].dropna().unique().tolist())
     selected_routes = st.sidebar.multiselect(
         "Routes",
@@ -347,9 +400,50 @@ def main() -> None:
         default=route_options,
         help="Filter route-aware dashboard views.",
     )
+    minimum_delay_rate = (
+        st.sidebar.slider(
+            "Minimum route delay rate",
+            min_value=0,
+            max_value=100,
+            value=0,
+            step=5,
+            help="Filters route-level table only.",
+        )
+        / 100
+    )
+    delayed_only = st.sidebar.checkbox("Delayed flights only")
+    cancelled_only = st.sidebar.checkbox("Cancelled flights only")
+    wind_speed_range = None
+    if "origin_wind_speed_kmh" in tables["flight_performance"].columns:
+        min_wind = float(tables["flight_performance"]["origin_wind_speed_kmh"].min())
+        max_wind = float(tables["flight_performance"]["origin_wind_speed_kmh"].max())
+        wind_speed_range = st.sidebar.slider(
+            "Origin wind speed range (km/h)",
+            min_value=round(min_wind, 1),
+            max_value=round(max_wind, 1),
+            value=(round(min_wind, 1), round(max_wind, 1)),
+            step=1.0,
+        )
+
+    st.sidebar.subheader("Display Options")
+    route_sort_by = st.sidebar.selectbox(
+        "Sort routes by",
+        options=["Delay rate", "Average delay", "Cancellations", "Total flights"],
+    )
+    top_n_routes = st.sidebar.slider("Top N routes", min_value=3, max_value=20, value=10)
+
     filtered_tables = filter_tables_by_routes(tables, selected_routes)
+    filtered_flights = filter_flight_performance(
+        filtered_tables["flight_performance"],
+        delayed_only=delayed_only,
+        cancelled_only=cancelled_only,
+        wind_speed_range=wind_speed_range,
+    )
+    filtered_tables["flight_performance"] = filtered_flights
     kpis = calculate_kpis(filtered_tables["flight_performance"])
     weather_summary = calculate_weather_delay_summary(filtered_tables["flight_performance"])
+    st.sidebar.metric("Flights in view", f"{kpis['total_flights']:,}")
+    st.sidebar.metric("Routes selected", f"{len(selected_routes):,}")
 
     st.subheader("Operational KPIs")
     metric_columns = st.columns(5)
@@ -363,9 +457,10 @@ def main() -> None:
     )
 
     st.subheader("Route Performance")
-    route_view = filtered_tables["route_performance"].sort_values(
-        ["delay_rate", "average_departure_delay_minutes"],
-        ascending=[False, False],
+    route_view = sort_and_limit_routes(
+        filter_route_performance(filtered_tables["route_performance"], minimum_delay_rate),
+        sort_by=route_sort_by,
+        top_n=top_n_routes,
     )
     st.dataframe(
         route_view[

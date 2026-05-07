@@ -51,7 +51,8 @@ The dashboard includes:
 - airport disruption table,
 - weather vs departure delay exploration,
 - passenger communication table,
-- route filter,
+- route, delay, cancellation, and wind-speed filters,
+- route sorting and top-N display controls,
 - metric definitions.
 
 ## Metric Definitions

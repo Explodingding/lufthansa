@@ -8,9 +8,12 @@ from dashboard.app import (
     calculate_kpis,
     calculate_weather_delay_summary,
     create_demo_tables,
+    filter_flight_performance,
+    filter_route_performance,
     filter_tables_by_routes,
     load_dashboard_tables,
     load_gold_tables,
+    sort_and_limit_routes,
 )
 
 
@@ -49,6 +52,42 @@ def test_filter_tables_by_routes_filters_route_aware_tables() -> None:
     assert filtered["route_performance"]["route"].tolist() == ["GDN-FRA"]
     assert filtered["passenger_communication"]["route"].tolist() == ["GDN-FRA"]
     assert len(filtered["airport_disruption"]) == 2
+
+
+def test_filter_flight_performance_applies_disruption_and_weather_filters() -> None:
+    tables = create_demo_tables()
+
+    filtered = filter_flight_performance(
+        tables["flight_performance"],
+        delayed_only=True,
+        wind_speed_range=(25.0, 45.0),
+    )
+
+    assert not filtered.empty
+    assert filtered["is_delayed"].all()
+    assert filtered["origin_wind_speed_kmh"].between(25.0, 45.0).all()
+
+
+def test_filter_route_performance_applies_minimum_delay_rate() -> None:
+    tables = create_demo_tables()
+
+    filtered = filter_route_performance(tables["route_performance"], minimum_delay_rate=0.2)
+
+    assert not filtered.empty
+    assert (filtered["delay_rate"] >= 0.2).all()
+
+
+def test_sort_and_limit_routes_returns_requested_top_n() -> None:
+    tables = create_demo_tables()
+
+    top_routes = sort_and_limit_routes(
+        tables["route_performance"],
+        sort_by="Delay rate",
+        top_n=3,
+    )
+
+    assert len(top_routes) == 3
+    assert top_routes["delay_rate"].is_monotonic_decreasing
 
 
 def test_load_gold_tables_reads_required_parquet_tables(tmp_path) -> None:
