@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 from pyspark.sql import SparkSession
 
+from airline_platform.extractors import build_synthetic_data
 from airline_platform.jobs.build_bronze import build_bronze_layer
 from airline_platform.jobs.ingest_raw import ingest_synthetic_raw
 
@@ -19,13 +20,20 @@ def spark():
 
 
 def test_build_bronze_layer_writes_parquet_outputs(tmp_path, spark) -> None:
+    synthetic_data = build_synthetic_data()
+    expected_total_records = (
+        len(synthetic_data.flights)
+        + len(synthetic_data.airports)
+        + len(synthetic_data.weather)
+        + len(synthetic_data.passenger_events)
+    )
     raw_dir = tmp_path / "raw"
     bronze_dir = tmp_path / "bronze"
     ingest_synthetic_raw(raw_dir)
 
     summary = build_bronze_layer(raw_dir, bronze_dir, spark=spark)
 
-    assert summary.total_records == 9
+    assert summary.total_records == expected_total_records
     assert {source.source for source in summary.sources} == {
         "flights",
         "airports",
@@ -34,7 +42,7 @@ def test_build_bronze_layer_writes_parquet_outputs(tmp_path, spark) -> None:
     }
 
     flights = pd.read_parquet(bronze_dir / "flights")
-    assert len(flights) == 2
+    assert len(flights) == len(synthetic_data.flights)
     assert "_bronze_loaded_at_utc" in flights.columns
     assert "_source_file" in flights.columns
 

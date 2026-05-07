@@ -11,9 +11,17 @@ from airline_platform.jobs.ingest_raw import (
 
 
 def test_ingest_synthetic_raw_writes_source_files_and_summary(tmp_path) -> None:
+    synthetic_data = build_synthetic_data()
+    expected_total_records = (
+        len(synthetic_data.flights)
+        + len(synthetic_data.airports)
+        + len(synthetic_data.weather)
+        + len(synthetic_data.passenger_events)
+    )
+
     summary = ingest_synthetic_raw(tmp_path)
 
-    assert summary.total_accepted_records == 9
+    assert summary.total_accepted_records == expected_total_records
     assert summary.total_rejected_records == 0
 
     expected_files = {
@@ -32,7 +40,7 @@ def test_ingest_synthetic_raw_writes_source_files_and_summary(tmp_path) -> None:
     assert validation_summary["output_dir"] == str(tmp_path)
     assert validation_summary["sources"][0] == {
         "source": "flights",
-        "accepted_records": 2,
+        "accepted_records": len(synthetic_data.flights),
         "rejected_records": 0,
         "errors": [],
     }

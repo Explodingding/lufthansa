@@ -15,7 +15,7 @@ The dashboard reads local gold Parquet tables:
 - `data/gold/gold_airport_disruption/`
 - `data/gold/gold_passenger_communication/`
 
-If these local files are not available, for example in Streamlit Community Cloud, the dashboard falls back to a small embedded demo dataset. This keeps the hosted app reviewable while preserving the local gold-layer workflow for full pipeline demos.
+If these local files are not available, for example in Streamlit Community Cloud, the dashboard falls back to an embedded demo dataset with 720 representative flights across six routes. This keeps the hosted app reviewable while preserving the local gold-layer workflow for full pipeline demos.
 
 Before running the dashboard, build the pipeline:
 
@@ -49,6 +49,7 @@ The dashboard includes:
 - operational KPIs: total flights, delayed flights, cancelled flights, delay rate, and average departure delay,
 - route performance table,
 - airport disruption table,
+- weather vs departure delay exploration,
 - passenger communication table,
 - route filter,
 - metric definitions.
@@ -59,5 +60,6 @@ The dashboard includes:
 - **Cancelled flight**: flight status equals `cancelled`.
 - **Delay rate**: delayed flights divided by total flights.
 - **Average departure delay**: mean of `departure_delay_minutes` in the selected view.
+- **Wind-delay correlation**: Pearson correlation between origin wind speed and departure delay minutes. This is an exploratory indicator, not a causal model.
 - **Passenger communication events**: communication records connected to flight disruption context.
 

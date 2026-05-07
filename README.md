@@ -151,7 +151,7 @@ Streamlit Community Cloud settings:
 - main file path: `dashboard/app.py`,
 - Python runtime: `runtime.txt` pins Streamlit Cloud to Python 3.12.
 
-The hosted dashboard falls back to embedded demo data when `data/gold` is not present. Local demos should still build the gold layer from the pipeline first.
+The hosted dashboard falls back to embedded demo data with 720 representative flights when `data/gold` is not present. Local demos should still build the gold layer from the pipeline first.
 
 Optionally use public airport metadata from OurAirports:
 

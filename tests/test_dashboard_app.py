@@ -4,7 +4,9 @@ import pandas as pd
 import pytest
 
 from dashboard.app import (
+    build_weather_delay_view,
     calculate_kpis,
+    calculate_weather_delay_summary,
     create_demo_tables,
     filter_tables_by_routes,
     load_dashboard_tables,
@@ -112,9 +114,31 @@ def test_create_demo_tables_supports_dashboard_kpis() -> None:
     tables = create_demo_tables()
     kpis = calculate_kpis(tables["flight_performance"])
 
-    assert kpis["total_flights"] == 3
-    assert kpis["delayed_flights"] == 2
-    assert kpis["cancelled_flights"] == 1
+    assert kpis["total_flights"] == 720
+    assert 0.10 <= kpis["delay_rate"] <= 0.30
+    assert 0 < kpis["cancelled_flights"] < 25
+    assert "origin_wind_speed_kmh" in tables["flight_performance"].columns
+
+
+def test_calculate_weather_delay_summary_returns_correlation() -> None:
+    tables = create_demo_tables()
+
+    summary = calculate_weather_delay_summary(tables["flight_performance"])
+
+    assert summary["average_wind_speed_kmh"] is not None
+    assert summary["wind_delay_correlation"] is not None
+    assert summary["wind_delay_correlation"] > 0
+
+
+def test_build_weather_delay_view_groups_flights_by_wind_bucket() -> None:
+    tables = create_demo_tables()
+
+    weather_delay_view = build_weather_delay_view(tables["flight_performance"])
+
+    assert set(weather_delay_view["wind_bucket"].astype(str)).issubset(
+        {"0-15 km/h", "15-25 km/h", "25-35 km/h", "35+ km/h"}
+    )
+    assert weather_delay_view["total_flights"].sum() == 720
 
 
 def _write_parquet_table(base_dir: Path, table_name: str, frame: pd.DataFrame) -> None:
